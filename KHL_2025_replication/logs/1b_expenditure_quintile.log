@@ -1,0 +1,616 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\berth\GitHub\KHL_2025\KHL_2025_replication/logs/1b_expenditure_quintile.log
+  log type:  text
+ opened on:  10 Feb 2026, 19:21:04
+
+. 
+. **# FOOD EXPENDITURE 
+.   
+.     * Data Preparation 
+.     use     "$rawdata/BLOK41_append.dta", clear 
+
+.     
+.     do      "$dofile/sub/0_labeling_susenas_kp41.do"
+
+. 
+. **# Labeling Susenas 
+.     
+.     * Variable
+.     label variable URUT     "Household ID"
+
+.     label variable R101     "Provincial Code"
+
+.     label variable R102     "District"
+
+.     label variable R105     "Urban/Rural"
+
+.     label variable R203     "Results of Household Enumeration"
+
+.     label variable R301     "Number of Household Members"
+
+.     label variable COICOP   "COICOP Code"
+
+.     label variable KLP      "Subgroup Code"
+
+.     label variable KODE     "Commodity Item Number"
+
+.     label variable B41K5    "Number of Consumption per Week of a Household Derived from Purchases"
+
+.     label variable B41K6    "Value of Expenditures for a Week of a Household Derived from Purchases"
+
+.     label variable B41K7    "Number of Consumption per Week of a Household Originating from Own Production, Gifting, etc."
+note: label truncated to 80 characters
+
+.     label variable B41K8    "Value of Expenditures for a Week of a Household Derived from Own Production, Giving, etc."
+note: label truncated to 80 characters
+
+.     label variable B41K9    "Number of Household Consumption a Week"
+
+.     label variable B41K10   "Value of expenditure a week one household"
+
+.     label variable KALORI   "Number of Calories Consumption per week in a household"
+
+.     label variable PROTEIN  "Number of Protein Consumption a Week for one household"
+
+.     label variable LEMAK    "Quantity consumption of fat: One week per household"
+
+.     label variable KARBO    "Amount of Consumption of Carbohydrates per week in a household"
+
+.     label variable WERT     "Weighing for Household Estimates"
+
+.     label variable WEIND    "Weighing for Population Estimation"
+
+.     label variable KABU     "Regency "
+
+.     //label variable WI1      "Indonesian NKS serial number"
+.     //label variable WI2      "Serial number for household samples in Indonesia"
+. 
+.     * Values for Variable "KLP" 2025
+.     label define klp_lbl ///
+>     1   "PADI-PADIAN" ///
+>     8   "UMBI-UMBIAN" ///
+>     16  "IKAN/UDANG/CUMI/KERANG" ///
+>     61  "DAGING" ///
+>     74  "TELUR DAN SUSU" ///
+>     85  "SAYUR-SAYURAN" ///
+>     121 "KACANG-KACANGAN" ///
+>     129 "BUAH-BUAHAN" ///
+>     154 "MINYAK DAN KELAPA" ///
+>     159 "BAHAN MINUMAN" ///
+>     167 "BUMBU-BUMBUAN" ///
+>     182 "KONSUMSI LAINNYA" ///
+>     187 "MAKANAN DAN MINUMAN"
+
+. 
+.     label values KLP klp_lbl
+
+. 
+end of do-file
+
+.     drop    if KLP==0
+(4,104,527 observations deleted)
+
+. 
+.     * Monthly Food Expenditure 
+.     egen    food_exp_weekly = sum(B41K10), by(URUT)       // Sum weekly food exp over items
+
+.     duplicates drop URUT, force                           // One row per household
+
+Duplicates in terms of URUT
+
+(13,288,887 observations deleted)
+
+. 
+.     gen     food_exp_monthly = food_exp_weekly * (30/7)   // Convert to monthly
+
+.     gen     food_exp_pc = food_exp_monthly / R301         // Per capita
+
+.     mean    food_exp_pc [aweight=WEIND]                   // National weighted average - figures matching with 2024 report page 15 
+
+Mean estimation                   Number of obs   =    343,460
+
+--------------------------------------------------------------
+             |       Mean   Std. Err.     [95% Conf. Interval]
+-------------+------------------------------------------------
+ food_exp_pc |   775516.1   767.8375      774011.2      777021
+--------------------------------------------------------------
+
+. 
+.     keep    URUT food_exp_monthly food_exp_pc R301
+
+.     save    "$data/food_exp.dta",replace
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/food_exp.dta saved
+
+. 
+. 
+. **# NON-FOOD EXPENDITURE
+. 
+.     * Data Preparation 
+.     use     "$rawdata/BLOK42_append.dta", clear 
+
+. 
+.     do      "$dofile/sub/0_labeling_susenas_kp42.do"
+
+. 
+. **# Labeling Susenas 
+. 
+.     label variable URUT     "Household ID"
+
+.     label variable R101     "Provincial Code"
+
+.     label variable R102     "District"
+
+.     label variable R105     "Urban/Rural"
+
+.     label variable R203     "Results of Household Enumeration"
+
+.     label variable R301     "Number of Household Members"
+
+.     label variable KLP      "Subgroup Code"
+
+.     label variable KODE     "Commodity Item Number"
+
+.     label variable B42K3    "Number of uses"
+
+.     label variable B42K4    "Value of Household Expenditures in the Last Month"
+
+.     label variable B42K5    "Value of Households Last Year's Expenditures"
+
+.     label variable B42K3a   "Value of Spending in the Past Year in Household Paid in Cash"
+
+.     label variable B42K3b   "Value of Spending in the Past Year in Household Paid in Cash"
+
+.     label variable B42K3c   "Value of Spending in the Past Year in Household Paid in Cash"
+
+.     label variable B42K3d   "Value of Spending in the Past Year in Household Paid in Cash"
+
+.     label variable B42K3e   "Value of Spending in the Past Year in Household Paid in Cash"
+
+.     label variable SEBULAN  "Average Non-Food Spending Value for a Month Household"
+
+.     label variable WERT     "Weighing for Household Estimates"
+
+.     label variable WEIND    "Weighing for Population Estimation"
+
+.     label variable KABU     "Regency"
+
+.     //label variable WI1      "Indonesian NKS serial number"
+.     //label variable WI2      "Serial number for household samples in Indonesia"
+. 
+end of do-file
+
+.     drop    if KLP==0
+(1,771,527 observations deleted)
+
+. 
+.     * Monthly Non-Food Expenditure 
+.    
+.     // The survey reports monthly and yearly expenses for each item
+.     gen     monthly_exp = B42K4
+
+.     replace monthly_exp = B42K5/12 if B42K4 == 0  
+(7,315,915 real changes made)
+
+. 
+.       *** Housing and Household Facilities ***
+.       gen     hhfacility=1 if (KODE>=228 & KODE<=267)
+(8,097,877 missing values generated)
+
+.       sort    URUT R101 R102 R105 R203
+
+.       bys     URUT: egen hhfacility1 = sum(monthly_exp) if hhfacility == 1
+(8,097,877 missing values generated)
+
+.       egen    hhfacility_exp = mean(hhfacility1), by(URUT) 
+
+.       drop    hhfacility1 hhfacility
+
+. 
+.       *** Household Goods ***
+.       gen     hhgoods=1 if (KODE>=269 & KODE<=275)
+(10,659,825 missing values generated)
+
+.       sort    URUT R101 R102 R105 R203
+
+.       bys     URUT: egen hhgoods1 = sum(monthly_exp) if hhgoods == 1
+(10,659,825 missing values generated)
+
+.       egen    hhgoods_exp = mean(hhgoods1), by(URUT) 
+(1,016 missing values generated)
+
+.       drop    hhgoods1 hhgoods
+
+. 
+.       *** Health Costs ***
+.       gen     health=1 if (KODE>=276 & KODE<=291) 
+(11,605,676 missing values generated)
+
+.       sort    URUT R101 R102 R105 R203
+
+. 
+.       bys     URUT: egen health_exp1 = sum(monthly_exp) if health == 1
+(11,605,676 missing values generated)
+
+.       egen    health_exp = mean(health_exp1), by(URUT) 
+(640,552 missing values generated)
+
+.       drop    health_exp1 health
+
+. 
+.       *** Education Costs ***
+.       gen     education=1 if (KODE>=292 & KODE<=297) 
+(11,862,700 missing values generated)
+
+.       sort    URUT R101 R102 R105 R203 
+
+. 
+.       bys     URUT: egen education_exp1 = sum(monthly_exp) if education == 1
+(11,862,700 missing values generated)
+
+.       egen    education_exp = mean(education_exp1), by(URUT) 
+(4,865,830 missing values generated)
+
+.       drop    education_exp1 education
+
+. 
+.       *** Transport and Other Services ***
+.       gen     transport=1 if (KODE>=298 & KODE<=306) 
+(11,716,781 missing values generated)
+
+.       sort    URUT R101 R102 R105 R203 
+
+. 
+.       bys     URUT: egen transport_exp1 = sum(monthly_exp) if transport == 1
+(11,716,781 missing values generated)
+
+.       egen    transport_exp = mean(transport_exp1), by(URUT) 
+(1,105,822 missing values generated)
+
+.       drop    transport_exp1 transport
+
+. 
+.       *** Clothing, Footwear and Headwear Costs ***
+.       gen     clothing=1 if (KODE>=308 & KODE<=315)   
+(10,894,599 missing values generated)
+
+.       sort    URUT R101 R102 R105 R203 
+
+. 
+.       bys     URUT: egen clothing_exp1 = sum(monthly_exp) if clothing == 1
+(10,894,599 missing values generated)
+
+.       egen    clothing_exp = mean(clothing_exp1), by(URUT) 
+(42,392 missing values generated)
+
+.       drop    clothing_exp1 clothing
+
+. 
+.       *** Durable Goods ***
+.       gen     durable=1 if (KODE>=317 & KODE<=333)  
+(11,630,588 missing values generated)
+
+.       sort    URUT R101 R102 R105 R203 
+
+. 
+.       bys     URUT: egen durable_exp1 = sum(monthly_exp) if durable==1
+(11,630,588 missing values generated)
+
+.       egen    durable_exp=mean(durable_exp1), by(URUT) 
+(1,395,031 missing values generated)
+
+.       drop    durable_exp1 durable
+
+. 
+.       *** Taxes and Insurance ***
+.       gen     taxes=1 if (KODE>=335 & KODE<=340)  
+(11,410,844 missing values generated)
+
+.       sort    URUT R101 R102 R105 R203 
+
+. 
+.       bys     URUT: egen taxes_exp1 = sum(monthly_exp) if taxes == 1
+(11,410,844 missing values generated)
+
+.       egen    taxes_exp = mean(taxes_exp1), by(URUT) 
+(21,426 missing values generated)
+
+.       drop    taxes_exp1 taxes
+
+. 
+.       *** Parties and Ceremonies ***
+.       gen     parties=1 if (KODE>=342 & KODE<=347)  
+(12,360,610 missing values generated)
+
+.       sort    URUT R101 R102 R105 R203 
+
+. 
+.       bys     URUT: egen parties_exp1 = sum(monthly_exp) if parties == 1
+(12,360,610 missing values generated)
+
+.       egen    parties_exp = mean(parties_exp1), by(URUT) 
+(8,401,797 missing values generated)
+
+.       drop    parties_exp1 parties
+
+. 
+.     // Keep the data at the HH level
+.     drop    KODE B42K3* B42K4 B42K5 KLP SEBULAN KABU monthly_exp
+
+.     duplicates drop URUT, force 
+
+Duplicates in terms of URUT
+
+(12,143,545 observations deleted)
+
+. 
+.     // Total non food expenditures
+.     egen  nonfood_exp    = rowtotal(hhfacility_exp hhgoods_exp health_exp education_exp transport_exp clothing_exp durable_exp taxes_exp parties_exp)
+
+.     gen   nonfood_exp_pc = nonfood_exp/R301
+
+.     mean  nonfood_exp_pc [aweight=WEIND]               // National weighted average - figures matching with 2024 report page 15 
+
+Mean estimation                     Number of obs   =    343,460
+
+----------------------------------------------------------------
+               |       Mean   Std. Err.     [95% Conf. Interval]
+---------------+------------------------------------------------
+nonfood_exp_pc |   793571.5   2136.959      789383.1    797759.9
+----------------------------------------------------------------
+
+. 
+. 
+. **# TOTAL EXPENDITURE (FOOD + NON-FOOD)
+. 
+.     * Monthly total expenditure
+.     merge   1:1 URUT using "$data/food_exp.dta" 
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                           343,460  (_merge==3)
+    -----------------------------------------
+
+.     egen    total_exp = rowtotal(food_exp_monthly hhfacility_exp hhgoods_exp health_exp education_exp transport_exp clothing_exp durable_exp taxes_exp parties_e
+> xp)
+
+.     gen     total_exp_pc = total_exp/R301
+
+.     mean    total_exp_pc [aweight = WEIND]               // National weighted average - figures matching with 2024 report page 15 
+
+Mean estimation                   Number of obs   =    343,460
+
+--------------------------------------------------------------
+             |       Mean   Std. Err.     [95% Conf. Interval]
+-------------+------------------------------------------------
+total_exp_pc |    1569088   2672.277       1563850     1574325
+--------------------------------------------------------------
+
+. 
+.     
+.     * Adjust total expenditure to adult equivalent
+.     drop    _merge
+
+.     merge   1:1 URUT using "$data/adultequi.dta" 
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                           343,460  (_merge==3)
+    -----------------------------------------
+
+.     gen     total_exp_aeq = total_exp/aeq_hh
+
+. 
+.     /*
+>     See the ILO manual page 22: https://www.ilo.org/sites/default/files/2025-04/254_499_EN07.pdf
+> 
+>     - To account for family size and reflect living standards, we could simply divide the total household expenditure by the number of household members. 
+>     - However, because there are economies of scale when several individuals live together and because children have lower material needs than adults, 
+>     estimating per capita expenditure requires the use of equivalence scales (ILO 2015). 
+>     - Therefore, in this baseline methodology, we suggest using the OECD adult equivalence scale (the Oxford scale), 
+>     which typically assigns a value of 1 to the household head, 0.7 to each additional adult member and 0.5 to each child. 
+>     - Once this is done, we rank the households from the poorest to the richest and create quintiles on
+>     the basis of their total monthly expenditure per adult equivalent.
+>     */
+. 
+. **# QUINTILE - NATIONAL
+. 
+.     * Calculate quintile
+.     xtile   quintile    = total_exp_aeq [aw= WEIND], n(5)
+
+.     xtile   quintile_pc = total_exp_pc [aw= WEIND], n(5)
+
+.     xtile   decile      = total_exp_aeq [aw= WEIND], n(10)
+
+.     xtile   decile_pc   = total_exp_pc [aw= WEIND], n(10)
+
+. 
+. 
+.     keep    URUT R101 R301 total_exp total_exp_pc aeq_hh adult_hh total_exp_aeq quintile quintile_pc decile decile_pc WERT WEIND
+
+.     do      "$dofile/sub/0_labeling_province.do"
+
+. 
+. **# Labeling Province in Susenas 
+. 
+.     label define province_lbl ///
+>     11 "ACEH" ///
+>     12 "SUMATERA UTARA" ///
+>     13 "SUMATERA BARAT" ///
+>     14 "RIAU" ///
+>     15 "JAMBI" ///
+>     16 "SUMATERA SELATAN" ///
+>     17 "BENGKULU" ///
+>     18 "LAMPUNG" ///
+>     19 "KEP. BANGKA BELITUNG" ///
+>     21 "KEP. RIAU" ///
+>     31 "DKI JAKARTA" ///
+>     32 "JAWA BARAT" ///
+>     33 "JAWA TENGAH" ///
+>     34 "DI YOGYAKARTA" ///
+>     35 "JAWA TIMUR" ///
+>     36 "BANTEN" ///
+>     51 "BALI" ///
+>     52 "NUSA TENGGARA BARAT" ///
+>     53 "NUSA TENGGARA TIMUR" ///
+>     61 "KALIMANTAN BARAT" ///
+>     62 "KALIMANTAN TENGAH" ///
+>     63 "KALIMANTAN SELATAN" ///
+>     64 "KALIMANTAN TIMUR" ///
+>     65 "KALIMANTAN UTARA" ///
+>     71 "SULAWESI UTARA" ///
+>     72 "SULAWESI TENGAH" ///
+>     73 "SULAWESI SELATAN" ///
+>     74 "SULAWESI TENGGARA" ///
+>     75 "GORONTALO" ///
+>     76 "SULAWESI BARAT" ///
+>     81 "MALUKU" ///
+>     82 "MALUKU UTARA" ///
+>     91 "PAPUA BARAT" ///
+>     92 "PAPUA BARAT DAYA" ///
+>     94 "PAPUA" ///
+>     95 "PAPUA SELATAN" ///
+>     96 "PAPUA TENGAH" ///
+>     97 "PAPUA PEGUNUNGAN"
+
+. 
+.     label values R101 province_lbl
+
+. 
+end of do-file
+
+. 
+.     save    "$data/quintiles.dta", replace
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/quintiles.dta saved
+
+. 
+. 
+. **# QUINTILE - PROVINCE
+. 
+.     * Calculate quintile
+.     levelsof R101, local(provinces)
+11 12 13 14 15 16 17 18 19 21 31 32 33 34 35 36 51 52 53 61 62 63 64 65 71 72 73 74 75 76 81 82 91 92 94 95 96 97
+
+. 
+.     gen   quintile_pc_province = .
+(343,460 missing values generated)
+
+. 
+.     foreach p of local provinces {
+  2.           xtile   q = total_exp_pc if R101 == `p' [aw=WEIND], nq(5)
+  3.           replace quintile_pc_province = q if R101 == `p'
+  4.           drop    q
+  5.     }
+(13,676 real changes made)
+(21,373 real changes made)
+(11,580 real changes made)
+(8,563 real changes made)
+(7,187 real changes made)
+(11,804 real changes made)
+(5,947 real changes made)
+(10,776 real changes made)
+(4,247 real changes made)
+(4,156 real changes made)
+(5,079 real changes made)
+(24,643 real changes made)
+(29,275 real changes made)
+(3,939 real changes made)
+(31,481 real changes made)
+(7,067 real changes made)
+(6,252 real changes made)
+(7,108 real changes made)
+(13,063 real changes made)
+(9,335 real changes made)
+(8,284 real changes made)
+(8,685 real changes made)
+(6,466 real changes made)
+(2,644 real changes made)
+(8,508 real changes made)
+(7,823 real changes made)
+(15,832 real changes made)
+(9,315 real changes made)
+(3,567 real changes made)
+(3,575 real changes made)
+(6,008 real changes made)
+(5,188 real changes made)
+(3,328 real changes made)
+(2,882 real changes made)
+(4,350 real changes made)
+(2,043 real changes made)
+(4,312 real changes made)
+(4,099 real changes made)
+
+. 
+.     keep  URUT R101 total_exp total_exp_pc aeq_hh adult_hh total_exp_aeq quintile quintile_pc quintile_pc_province decile WERT WEIND
+
+. 
+.     table R101 [aweight=WEIND], contents(mean total_exp_pc)
+
+-------------------------------------
+     Provincial Code | mean(total_~c)
+---------------------+---------------
+                ACEH |        1299756
+      SUMATERA UTARA |        1397887
+      SUMATERA BARAT |        1542110
+                RIAU |        1610427
+               JAMBI |        1477104
+    SUMATERA SELATAN |        1283539
+            BENGKULU |        1498744
+             LAMPUNG |        1239613
+KEP. BANGKA BELITUNG |        1765551
+           KEP. RIAU |        2468319
+         DKI JAKARTA |        2962412
+          JAWA BARAT |        1724367
+         JAWA TENGAH |        1337028
+       DI YOGYAKARTA |        1843212
+          JAWA TIMUR |        1419140
+              BANTEN |        1750546
+                BALI |        1964618
+ NUSA TENGGARA BARAT |        1402118
+ NUSA TENGGARA TIMUR |        1028875
+    KALIMANTAN BARAT |        1469934
+   KALIMANTAN TENGAH |        1596165
+  KALIMANTAN SELATAN |        1603501
+    KALIMANTAN TIMUR |        2117354
+    KALIMANTAN UTARA |        1726451
+      SULAWESI UTARA |        1410504
+     SULAWESI TENGAH |        1256394
+    SULAWESI SELATAN |        1358821
+   SULAWESI TENGGARA |        1325085
+           GORONTALO |        1315738
+      SULAWESI BARAT |        1069314
+              MALUKU |        1398499
+        MALUKU UTARA |        1492532
+         PAPUA BARAT |        1705338
+    PAPUA BARAT DAYA |        1816875
+               PAPUA |        1810767
+       PAPUA SELATAN |        1517419
+        PAPUA TENGAH |        1459088
+    PAPUA PEGUNUNGAN |        1941997
+-------------------------------------
+
+. 
+.     save  "$data/quintiles_province.dta", replace
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/quintiles_province.dta saved
+
+. 
+. 
+end of do-file
+.         }
+
+.         if      `1c_housing_score' == 1         {
+.                 do      "$dofile/1c_housing_score.do"
+
+. * ==============================================================================
+. *
+. * Project         : Estimating Living Wage (KHL) 2025 
+. * Description     : Constructing the Housing Score
+. * Stata version   : 16 
+. * Date created    : October 30, 2025 - by Bertha
+. * Last modified   : October 30, 2025 - by Bertha
+. *
+. * ==============================================================================
+. 
+.   capture:  log close

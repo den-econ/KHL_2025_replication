@@ -1,0 +1,340 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\berth\GitHub\KHL_2025\KHL_2025_replication/logs/2c_food_basket.log
+  log type:  text
+ opened on:  10 Feb 2026, 19:25:54
+
+. 
+. **# DATA PREPARATION 
+. 
+.     * Load dataset
+.     use     "$rawdata/BLOK41_append.dta", clear  
+
+.     rename  *, upper 
+  (all newnames==oldnames)
+
+.     do      "$dofile/sub/0_labeling_province.do"
+
+. 
+. **# Labeling Province in Susenas 
+. 
+.     label define province_lbl ///
+>     11 "ACEH" ///
+>     12 "SUMATERA UTARA" ///
+>     13 "SUMATERA BARAT" ///
+>     14 "RIAU" ///
+>     15 "JAMBI" ///
+>     16 "SUMATERA SELATAN" ///
+>     17 "BENGKULU" ///
+>     18 "LAMPUNG" ///
+>     19 "KEP. BANGKA BELITUNG" ///
+>     21 "KEP. RIAU" ///
+>     31 "DKI JAKARTA" ///
+>     32 "JAWA BARAT" ///
+>     33 "JAWA TENGAH" ///
+>     34 "DI YOGYAKARTA" ///
+>     35 "JAWA TIMUR" ///
+>     36 "BANTEN" ///
+>     51 "BALI" ///
+>     52 "NUSA TENGGARA BARAT" ///
+>     53 "NUSA TENGGARA TIMUR" ///
+>     61 "KALIMANTAN BARAT" ///
+>     62 "KALIMANTAN TENGAH" ///
+>     63 "KALIMANTAN SELATAN" ///
+>     64 "KALIMANTAN TIMUR" ///
+>     65 "KALIMANTAN UTARA" ///
+>     71 "SULAWESI UTARA" ///
+>     72 "SULAWESI TENGAH" ///
+>     73 "SULAWESI SELATAN" ///
+>     74 "SULAWESI TENGGARA" ///
+>     75 "GORONTALO" ///
+>     76 "SULAWESI BARAT" ///
+>     81 "MALUKU" ///
+>     82 "MALUKU UTARA" ///
+>     91 "PAPUA BARAT" ///
+>     92 "PAPUA BARAT DAYA" ///
+>     94 "PAPUA" ///
+>     95 "PAPUA SELATAN" ///
+>     96 "PAPUA TENGAH" ///
+>     97 "PAPUA PEGUNUNGAN"
+
+. 
+.     label values R101 province_lbl
+
+. 
+end of do-file
+
+.     do      "$dofile/sub/0_labeling_susenas_kp41.do"
+
+. 
+. **# Labeling Susenas 
+.     
+.     * Variable
+.     label variable URUT     "Household ID"
+
+.     label variable R101     "Provincial Code"
+
+.     label variable R102     "District"
+
+.     label variable R105     "Urban/Rural"
+
+.     label variable R203     "Results of Household Enumeration"
+
+.     label variable R301     "Number of Household Members"
+
+.     label variable COICOP   "COICOP Code"
+
+.     label variable KLP      "Subgroup Code"
+
+.     label variable KODE     "Commodity Item Number"
+
+.     label variable B41K5    "Number of Consumption per Week of a Household Derived from Purchases"
+
+.     label variable B41K6    "Value of Expenditures for a Week of a Household Derived from Purchases"
+
+.     label variable B41K7    "Number of Consumption per Week of a Household Originating from Own Production, Gifting, etc."
+note: label truncated to 80 characters
+
+.     label variable B41K8    "Value of Expenditures for a Week of a Household Derived from Own Production, Giving, etc."
+note: label truncated to 80 characters
+
+.     label variable B41K9    "Number of Household Consumption a Week"
+
+.     label variable B41K10   "Value of expenditure a week one household"
+
+.     label variable KALORI   "Number of Calories Consumption per week in a household"
+
+.     label variable PROTEIN  "Number of Protein Consumption a Week for one household"
+
+.     label variable LEMAK    "Quantity consumption of fat: One week per household"
+
+.     label variable KARBO    "Amount of Consumption of Carbohydrates per week in a household"
+
+.     label variable WERT     "Weighing for Household Estimates"
+
+.     label variable WEIND    "Weighing for Population Estimation"
+
+.     label variable KABU     "Regency "
+
+.     //label variable WI1      "Indonesian NKS serial number"
+.     //label variable WI2      "Serial number for household samples in Indonesia"
+. 
+.     * Values for Variable "KLP" 2025
+.     label define klp_lbl ///
+>     1   "PADI-PADIAN" ///
+>     8   "UMBI-UMBIAN" ///
+>     16  "IKAN/UDANG/CUMI/KERANG" ///
+>     61  "DAGING" ///
+>     74  "TELUR DAN SUSU" ///
+>     85  "SAYUR-SAYURAN" ///
+>     121 "KACANG-KACANGAN" ///
+>     129 "BUAH-BUAHAN" ///
+>     154 "MINYAK DAN KELAPA" ///
+>     159 "BAHAN MINUMAN" ///
+>     167 "BUMBU-BUMBUAN" ///
+>     182 "KONSUMSI LAINNYA" ///
+>     187 "MAKANAN DAN MINUMAN"
+
+. 
+.     label values KLP klp_lbl
+
+. 
+end of do-file
+
+.     drop    if KLP == 0
+(4,104,527 observations deleted)
+
+. 
+.     drop    if KODE >= 219 // drop alcoholic beverages and tobacco
+(255,004 observations deleted)
+
+. 
+.     compress
+  (0 bytes saved)
+
+.     merge   m:1 KODE using "$rawdata/calorie_fnl.dta" 
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                            20
+        from master                         0  (_merge==1)
+        from using                         20  (_merge==2)
+
+    matched                        13,377,343  (_merge==3)
+    -----------------------------------------
+
+. 
+.     keep if _merge==3
+(20 observations deleted)
+
+.     drop    _merge
+
+. 
+.     preserve
+
+.     collapse (first) KLP, by(KODE)
+
+.     order   KLP KODE 
+
+.     export  excel using "$output/2_commodity_basket.xlsx", ///
+>             firstrow(variables) sheet("Food") sheetmodify
+file C:\Users\berth\GitHub\KHL_2025\KHL_2025_replication/output/2_commodity_basket.xlsx saved
+
+.     restore
+
+. 
+. 
+. **# FOOD BASKET 
+. 
+.     ********************************************************************************
+.     *** Food Consumption per Capita
+.     ********************************************************************************
+.     * The consumed quantity is given in kg, but weekly. Calculate monthly quantity
+.     gen     consumption_kg  = B41K9 * unit_of_quantity_kg * (30/7)
+
+. 
+.     * Calcule Consumption per capita
+.     gen     pc_quant        = consumption_kg/R301
+(11 missing values generated)
+
+. 
+.     * For biased data, winsorize data:
+.     //ssc   install winsor2
+.     winsor2 pc_quant, cuts(1 99) by(KODE)
+
+.     gen     check = 0
+
+.     replace check = 1 if pc_quant != pc_quant_w
+(215,401 real changes made)
+
+. 
+.     * Calcule the total consumption with the winsorized data
+.     gen     consumption_kg2 = consumption_kg
+
+.     replace consumption_kg2 = pc_quant_w * R301 if check == 1
+(213,610 real changes made)
+
+.         
+.         
+.     * Total consumption per capita
+.     gen     cons_tot_kg_pc  = consumption_kg2/R301
+(11 missing values generated)
+
+.     gen     cons_tot_kg_pc_daily = cons_tot_kg_pc/30
+(11 missing values generated)
+
+.     gen     dailyquant_pc   = 0
+
+.     replace dailyquant_pc   = cons_tot_kg_pc_daily if cons_tot_kg_pc_daily!=.
+(13,377,332 real changes made)
+
+.     
+. 
+.     ********************************************************************************
+.     *** Calorie Intake
+.     ********************************************************************************
+.     // Notes: if using DKBM data, can skip this line or divide the DKBM numbers by 10
+.     gen     calories_kg     = calorie * 10  // with calorie_fnl
+
+.             
+.     gen     cal_int         = calories_kg * consumption_kg2
+
+.     egen    hh_calintake    = sum(cal_int), by (URUT) 
+
+. 
+.     * Per capita calorie consumption
+.     gen     daily_calinHH   = hh_calintake * (12/365) 
+
+. 
+.     merge   m:1 URUT using "$data/quintiles.dta"
+(label province_lbl already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                        13,377,343  (_merge==3)
+    -----------------------------------------
+
+.     drop    _merge
+
+. 
+.     sum     daily_calinHH [aweight = WEIND], detail
+
+                        daily_calinHH
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%     3371.228       291.6089
+ 5%     4624.577       291.6089
+10%     5380.402       291.6089       Obs          13,377,332
+25%      6745.48       291.6089       Sum of Wgt.  1.2833e+10
+
+50%     8455.074                      Mean           8911.945
+                        Largest       Std. Dev.      3186.952
+75%     10564.98       67452.41
+90%     12947.42       67452.41       Variance       1.02e+07
+95%     14671.45       67452.41       Skewness       1.180542
+99%     18917.29       67452.41       Kurtosis       6.447442
+
+.     table   quintile_pc [aweight = WEIND], contents(mean daily_calinHH)
+
+--------------------------
+5         |
+quantiles |
+of        |
+total_exp |
+_pc       | mean(daily_~H)
+----------+---------------
+        1 |       8429.392
+        2 |       8778.932
+        3 |       8968.693
+        4 |       9085.699
+        5 |       9193.645
+--------------------------
+
+. 
+.     gen     aeq_caldaily    = daily_calinHH/aeq_hh      // Calorie per adult equivalent
+
+. 
+.     * Calorie intake given by HH at the weekly level
+.     gen     KALORI_D    = KALORI/7
+(11 missing values generated)
+
+.     egen    HH_KALORI   = sum(KALORI_D), by(URUT)
+
+. 
+.     * Protein
+.     gen     protein_kg  = protein*10
+
+.     gen     protein_int = protein_kg*consumption_kg2
+
+. 
+.     egen    hh_protintake = sum(protein_int), by(URUT)
+
+. 
+.     egen    food_exp_weekly = sum(B41K10), by(URUT)     // Sum weekly food exp over items
+
+.     
+.     save    "$data/corefood.dta", replace
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/corefood.dta saved
+
+. 
+. 
+.     
+. 
+end of do-file
+.         }
+
+.         if      `2d_reference_quintile' == 1    {
+.                 do      "$dofile/2d_reference_quintile.do"
+
+. * ==============================================================================
+. *
+. * Project         : Estimating Living Wage (KHL) 2024 
+. * Description     : Identify Reference Quintile (National and Province)
+. * Stata version   : 16 
+. * Date created    : October 30, 2025 - by Bertha
+. * Last modified   : October 30, 2025 - by Bertha
+. *
+. * ==============================================================================
+. 
+.   capture:  log close

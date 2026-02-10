@@ -1,0 +1,236 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\berth\GitHub\KHL_2025\KHL_2025_replication/logs/2d_reference_quintile.log
+  log type:  text
+ opened on:  10 Feb 2026, 19:27:54
+
+. 
+. **# DATA PREPARATION 
+. 
+.     * Load dataset
+.     use     "$data/corefood.dta", clear  
+
+.    
+.     duplicates drop URUT, force                                 // One row per household
+
+Duplicates in terms of URUT
+
+(13,033,883 observations deleted)
+
+.     
+.     merge   1:1 URUT using "$data/quintiles_province.dta"
+(label province_lbl already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                           343,460  (_merge==3)
+    -----------------------------------------
+
+.     drop    _merge
+
+. 
+. **# REFERENCE QUINITLE
+. 
+.     * Generate Daily Calorie Intake
+.     gen     food_exp_monthly    = food_exp_weekly * (30/4)      // Convert to monthly
+
+.     gen     food_exp_pc         = food_exp_monthly/R301         // Per capita
+
+.     gen     calorie_pc          = calories/R301
+
+.     gen     protein_pc          = protein/R301
+
+.     gen     pc_caldaily         = daily_calinHH/R301
+
+. 
+.     sum     pc_caldaily, detail
+
+                         pc_caldaily
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%     1075.747       291.6089
+ 5%     1296.221       518.6254
+10%      1448.74       559.0499       Obs             343,460
+25%     1730.007       573.7149       Sum of Wgt.     343,460
+
+50%     2087.266                      Mean           2173.084
+                        Largest       Std. Dev.      622.7112
+75%     2520.683        4679.73
+90%     3027.116       4685.066       Variance       387769.3
+95%     3375.524       4695.663       Skewness       .7465176
+99%      3976.09       4812.017       Kurtosis       3.494777
+
+. 
+.     * Calorie Intake by Quintile - National
+.     
+.     table   quintile_pc [aweight = WEIND], contents(mean pc_caldaily)               // final
+
+--------------------------
+5         |
+quantiles |
+of        |
+total_exp |
+_pc       | mean(pc_cal~y)
+----------+---------------
+        1 |       1650.671
+        2 |       1876.612
+        3 |       2019.389
+        4 |       2188.089
+        5 |       2366.387
+--------------------------
+
+.     table   quintile_pc if R105 == 1 [aweight = WEIND], contents(mean pc_caldaily)  // final
+
+--------------------------
+5         |
+quantiles |
+of        |
+total_exp |
+_pc       | mean(pc_cal~y)
+----------+---------------
+        1 |       1612.296
+        2 |       1820.828
+        3 |       1954.243
+        4 |       2083.464
+        5 |       2308.901
+--------------------------
+
+.     table   quintile_pc if R105 == 2 [aweight = WEIND], contents(mean pc_caldaily)  // final
+
+--------------------------
+5         |
+quantiles |
+of        |
+total_exp |
+_pc       | mean(pc_cal~y)
+----------+---------------
+        1 |       1683.203
+        2 |       1942.176
+        3 |       2109.592
+        4 |       2352.208
+        5 |       2575.631
+--------------------------
+
+.     
+.     preserve
+
+.     collapse (mean) pc_caldaily [aw=WEIND], by(quintile_pc)
+
+.     gen     cal_optimal = $cal_optimal
+
+.     gen     cal_diff    = abs(pc_caldaily-cal_optimal)
+
+.     egen    min_diff    = min(cal_diff)
+
+.     gen     is_min_diff = (cal_diff == min_diff)
+
+. 
+.     export  excel using "$output/2_reference_quintile.xlsx", ///
+>             firstrow(variables) sheetmodify sheet("National") 
+file C:\Users\berth\GitHub\KHL_2025\KHL_2025_replication/output/2_reference_quintile.xlsx saved
+
+.     restore
+
+. 
+.     * Calorie Intake by Quintile - Province
+.     collapse (mean) pc_caldaily [aw=WEIND], by(R101 quintile_pc_province)
+
+.     gen     cal_optimal = $cal_optimal
+
+.     gen     cal_diff    = abs(pc_caldaily-cal_optimal)
+
+.     egen    min_diff    = min(cal_diff), by(R101)
+
+.     gen     is_min_diff = (cal_diff == min_diff)
+
+. 
+.     export  excel using "$output/2_reference_quintile.xlsx", ///
+>             firstrow(variables) sheetmodify sheet("Province")  
+file C:\Users\berth\GitHub\KHL_2025\KHL_2025_replication/output/2_reference_quintile.xlsx saved
+
+. 
+.     preserve
+
+.     merge   1:m R101 quintile_pc_province using "$data/quintiles_province.dta"
+(label province_lbl already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                           343,460  (_merge==3)
+    -----------------------------------------
+
+.     drop    _merge
+
+. 
+.     save    "$data/prov_reference_quintile.dta", replace
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/prov_reference_quintile.dta saved
+
+.     restore
+
+. 
+.     * Merge with Non-Food Expenditure Data
+.     merge   1:1 R101 quintile_pc_province using "$data/prov_meanexp_hltheduoth.dta" 
+(label province_lbl already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                               190  (_merge==3)
+    -----------------------------------------
+
+.     
+. 
+.     * Reference quintile 
+. 
+.         // If fixed at national level
+.         if $q_fixed == 1 {
+.             keep if quintile_pc_province == $quintile
+(152 observations deleted)
+.         }
+
+.         // If based on province reference quintile
+.         if $q_fixed == 0 {
+.             keep if is_min_diff==1
+.         }
+
+. 
+. 
+.     keep    R101 education_exp_pc- indonesia_exp_aeq
+
+. 
+.     merge   1:1 R101 using "$data/prov_meanexp_rent_utility.dta"
+(label province_lbl already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                                38  (_merge==3)
+    -----------------------------------------
+
+.     drop    _merge
+
+. 
+.     save    "$data/nonfood_exp.dta", replace
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/nonfood_exp.dta saved
+
+. 
+. 
+end of do-file
+.         }
+
+.         if      `2e_food_expenditure' == 1      {
+.                 do      "$dofile/2e_food_expenditure.do"
+
+. * ==============================================================================
+. *
+. * Project         : Estimating Living Wage (KHL) 2024 
+. * Description     : Assess Food Expenditure by Subgroup, Quintile, and Province
+. * Stata version   : 16 
+. * Date created    : October 30, 2025 - by Bertha
+. * Last modified   : October 30, 2025 - by Bertha
+. *
+. * ==============================================================================
+. 
+.   capture:  log close
