@@ -1,8 +1,8 @@
------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/logs/1c_housing_score.log
   log type:  text
- opened on:  11 Feb 2026, 09:27:36
+ opened on:  24 Feb 2026, 09:17:56
 
 . 
 . **# DATA PREPARATION 
@@ -108,14 +108,11 @@ end of do-file
 
 .     label   variable    R1604       "What is the floor area of the residential building?"
 
-.     label   variable    R1606       "What is the main building material for the widest roof o
-> f the house?"
+.     label   variable    R1606       "What is the main building material for the widest roof of the house?"
 
-.     label   variable    R1607       "Is the main building material of the widest wall of the 
-> house"
+.     label   variable    R1607       "Is the main building material of the widest wall of the house"
 
-.     label   variable    R1608       "What is the main building material for the widest floor 
-> of the house?"
+.     label   variable    R1608       "What is the main building material for the widest floor of the house?"
 
 .     label   variable    R1609B      "What type of toilet is used?"
 
@@ -260,8 +257,7 @@ end of do-file
 (343,460 missing values generated)
 
 . 
-.     replace h_score_water=1 if R1610A==9    //Surface water (rivers, lakes, reservoirs, ponds
-> , irrigation)
+.     replace h_score_water=1 if R1610A==9    //Surface water (rivers, lakes, reservoirs, ponds, irrigation)
 (5,850 real changes made)
 
 .     replace h_score_water=1 if R1610A==10   //Rainwater
@@ -355,8 +351,7 @@ end of do-file
 .     ********************************************************************************
 .     *** 4.5 Total Score
 .     ********************************************************************************
-.     egen    h_score=rowtotal(h_score_size_dw h_score_material h_score_water h_score_facilitie
-> s)
+.     egen    h_score=rowtotal(h_score_size_dw h_score_material h_score_water h_score_facilities)
 
 .     label   variable h_score    "Housing Score"
 
@@ -407,8 +402,7 @@ Rental free |23,519.829  7,198.055 | 30,717.88
 
 . 
 .     save   "$data/housing_score.dta", replace 
-file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/h
-> ousing_score.dta saved
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/housing_score.dta saved
 
 . 
 . 
@@ -428,8 +422,7 @@ file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/1_hscore_prov.xlsx sav
 .     drop    h_score
 
 .     save    "$data/hh_score_prov.dta", replace 
-file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/h
-> h_score_prov.dta saved
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/hh_score_prov.dta saved
 
 . 
 .     restore

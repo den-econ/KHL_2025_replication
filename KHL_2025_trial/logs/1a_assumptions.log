@@ -249,3 +249,302 @@ file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\da
 .     duplicates drop URUT, force                    // One row per household    
 
 Duplicates in terms of URUT
+
+(13,915,072 observations deleted)
+
+.     
+.     sum     R301 [aw=WERT], detail
+
+                            R301
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            1              1
+ 5%            2              1
+10%            2              1       Obs             343,460
+25%            3              1       Sum of Wgt.  74108994.5
+
+50%            4                      Mean            3.80011
+                        Largest       Std. Dev.      1.447929
+75%            5             17
+90%            6             19       Variance       2.096497
+95%            6             19       Skewness       .6040655
+99%            8             20       Kurtosis       4.253133
+
+. 
+.     save    "$data/hh_size.dta", replace 
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/hh_size.dta saved
+
+.        
+.     * By Province
+.     preserve
+
+. 
+.     collapse (mean) R301 [aw=WERT], by(R101)
+
+.     gen     hh_size = round(R301, 0.01) 
+
+.     drop    R301
+
+. 
+.     export  excel using "$output/1_assumption.xlsx", ///
+>             firstrow(variables) sheet("HH Size") sheetmodify
+file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/1_assumption.xlsx saved
+
+.     
+.     save   "$data/hh_size_prov.dta", replace 
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/hh_size_prov.dta saved
+
+. 
+.     restore
+
+. 
+.     * Adult equivalent by household size
+.     merge   1:1 URUT using "$data/adultequi"
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                           343,460  (_merge==3)
+    -----------------------------------------
+
+.     drop    _merge
+
+.     
+.     preserve
+
+.     collapse (mean) aeq_hh aeei_hh [aw=WERT], by(R301)  
+
+.     export  excel using "$output/1_assumption.xlsx", ///
+>             firstrow(variables) sheet("Adult Equivalent_National") sheetmodify
+file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/1_assumption.xlsx saved
+
+.     restore
+
+.    
+.     preserve
+
+.     collapse (mean) aeq_hh aeei_hh [aw=WERT], by(R101 R301) 
+
+.     export  excel using "$output/1_assumption.xlsx", ///
+>             firstrow(variables) sheet("Adult Equivalent_Province") sheetmodify
+file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/1_assumption.xlsx saved
+
+.     restore
+
+. 
+.     keep if R301 == 4
+(258,353 observations deleted)
+
+. 
+. 
+.     use     "$rawdata/KOR25IND_merge.dta", clear 
+
+.     rename  *, upper 
+
+. 
+.     keeporder URUT R101 R707 R407
+
+. 
+. **# Working Adults 
+. 
+.     use     "$rawdata/KOR25IND_merge.dta", clear 
+
+.     rename  *, upper 
+
+. 
+.     keeporder URUT R101 R707 R706 R407 
+
+. 
+.     // working adult, income earners, wage earners
+.     gen     working_adult   = 1 if (R706<=6 & R407>=15 & R706!=.) // working adult 
+(592,738 missing values generated)
+
+.     replace working_adult   = 0 if working_adult == .
+(592,738 real changes made)
+
+. 
+.     
+.     gen     income_earners  = 1 if (R706<=5 & R407>=15 & R706!=.) // income earner
+(665,355 missing values generated)
+
+.     replace income_earners  = 0 if income_earners == .
+(665,355 real changes made)
+
+. 
+. 
+.     gen     wage_earners    = 1 if (R706==4 & R407>=15 & R706!=.) // wage earner
+(956,264 missing values generated)
+
+.     replace wage_earners    = 0 if wage_earners == .
+(956,264 real changes made)
+
+. 
+.     // full time 
+.     gen     working_adult_ft    = (working_adult == 1 & R707 >= 35)
+
+.     replace working_adult_ft    = 0 if working_adult_ft == .
+(0 real changes made)
+
+. 
+.     gen     income_earners_ft   = (income_earners == 1 & R707 >= 35)
+
+.     replace income_earners_ft   = 0 if income_earners_ft == .
+(0 real changes made)
+
+. 
+.     gen     wage_earners_ft     = (wage_earners == 1 & R707 >= 35)
+
+.     replace wage_earners_ft     = 0 if wage_earners_ft == .
+(0 real changes made)
+
+. 
+. 
+.     collapse (sum) working_adult working_adult_ft income_earners income_earners_ft wage_earners wage_earners_ft, by(URUT)
+
+. 
+.     merge   1:1 URUT using "$data/hh_size.dta"
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                           343,460  (_merge==3)
+    -----------------------------------------
+
+. 
+.     * Full time worker at national level 
+. 
+.     sum     working_adult_ft income_earners_ft wage_earners_ft [aw=WERT]
+
+    Variable |     Obs      Weight        Mean   Std. Dev.       Min        Max
+-------------+-----------------------------------------------------------------
+working_a~ft | 343,460  74108994.5    1.278786   .9707827          0         10
+income_ear~t | 343,460  74108994.5    1.204201   .9157469          0          9
+wage_earne~t | 343,460  74108994.5    .6740542   .8232897          0          9
+
+.     sum     income_earners_ft [aw=WERT], detail
+
+                   (sum) income_earners_ft
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            0              0
+ 5%            0              0
+10%            0              0       Obs             343,460
+25%            1              0       Sum of Wgt.  74108994.5
+
+50%            1                      Mean           1.204201
+                        Largest       Std. Dev.      .9157469
+75%            2              7
+90%            2              8       Variance       .8385924
+95%            3              9       Skewness       .6596022
+99%            4              9       Kurtosis       3.635664
+
+.     
+.     preserve
+
+.     collapse (mean) working_adult working_adult_ft income_earners income_earners_ft wage_earners wage_earners_ft [aw=WERT], by(
+> R301)
+
+.     export  excel using "$output/1_assumption.xlsx", ///
+>             firstrow(variables) sheet("FT workers_national") sheetmodify
+file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/1_assumption.xlsx saved
+
+.     restore
+
+.     
+.   
+.     * Full time worker at province level 
+.     collapse (mean) working_adult working_adult_ft income_earners income_earners_ft wage_earners wage_earners_ft [aw=WERT], by(
+> R101 R301)
+
+.     export  excel using "$output/1_assumption.xlsx", ///
+>             firstrow(variables) sheet("FT workers_province") sheetmodify
+file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/1_assumption.xlsx saved
+
+.    
+.     keep if R301 == 4
+(422 observations deleted)
+
+. 
+.     keeporder R101 R301 working_adult_ft income_earners_ft wage_earners_ft
+
+.     do      "$dofile/sub/0_labeling_province.do"
+
+. 
+. **# Labeling Province in Susenas 
+. 
+.     label define province_lbl ///
+>     11 "ACEH" ///
+>     12 "SUMATERA UTARA" ///
+>     13 "SUMATERA BARAT" ///
+>     14 "RIAU" ///
+>     15 "JAMBI" ///
+>     16 "SUMATERA SELATAN" ///
+>     17 "BENGKULU" ///
+>     18 "LAMPUNG" ///
+>     19 "KEP. BANGKA BELITUNG" ///
+>     21 "KEP. RIAU" ///
+>     31 "DKI JAKARTA" ///
+>     32 "JAWA BARAT" ///
+>     33 "JAWA TENGAH" ///
+>     34 "DI YOGYAKARTA" ///
+>     35 "JAWA TIMUR" ///
+>     36 "BANTEN" ///
+>     51 "BALI" ///
+>     52 "NUSA TENGGARA BARAT" ///
+>     53 "NUSA TENGGARA TIMUR" ///
+>     61 "KALIMANTAN BARAT" ///
+>     62 "KALIMANTAN TENGAH" ///
+>     63 "KALIMANTAN SELATAN" ///
+>     64 "KALIMANTAN TIMUR" ///
+>     65 "KALIMANTAN UTARA" ///
+>     71 "SULAWESI UTARA" ///
+>     72 "SULAWESI TENGAH" ///
+>     73 "SULAWESI SELATAN" ///
+>     74 "SULAWESI TENGGARA" ///
+>     75 "GORONTALO" ///
+>     76 "SULAWESI BARAT" ///
+>     81 "MALUKU" ///
+>     82 "MALUKU UTARA" ///
+>     91 "PAPUA BARAT" ///
+>     92 "PAPUA BARAT DAYA" ///
+>     94 "PAPUA" ///
+>     95 "PAPUA SELATAN" ///
+>     96 "PAPUA TENGAH" ///
+>     97 "PAPUA PEGUNUNGAN"
+
+. 
+.     label values R101 province_lbl
+
+. 
+end of do-file
+
+. 
+. 
+.     save    "$data/full_time.dta", replace
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/full_time.dta saved
+
+. 
+. 
+. 
+. 
+.         
+.    
+. 
+. 
+end of do-file
+.         }
+
+.         if      `1b_expenditure_quintile' == 1  {
+.                 do      "$dofile/1b_expenditure_quintile.do"
+
+. * ==============================================================================
+. *
+. * Project         : Estimating Living Wage (KHL) 2025 
+. * Description     : Generating Quintile Based on HH Total Expenditure - National
+. * Stata version   : 16 
+. * Date created    : October 30, 2025 - by Bertha
+. * Last modified   : October 30, 2025 - by Bertha
+. *
+. * ==============================================================================
+. 
+.   capture:  log close

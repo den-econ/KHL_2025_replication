@@ -1,8 +1,8 @@
------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/logs/2a_non_food_basket.log
   log type:  text
- opened on:  11 Feb 2026, 09:27:39
+ opened on:  24 Feb 2026, 09:17:59
 
 . 
 . **# DATA PREPARATION 
@@ -93,8 +93,8 @@ end of do-file
 
 . 
 .     *Utilities
-.     gen     utilities=1 if (KODE==234| KODE==236) | (KODE==239 | KODE==241) | (KODE==253 | KO
-> DE==255 | KODE==257 | KODE==259 | KODE==260 | KODE==261 | KODE==262)   
+.     gen     utilities=1 if (KODE==234| KODE==236) | (KODE==239 | KODE==241) | (KODE==253 | KODE==255 | KODE==257 | KODE==259 | 
+> KODE==260 | KODE==261 | KODE==262)   
 (11,303,249 missing values generated)
 
 . 
@@ -161,8 +161,7 @@ end of do-file
 .     ********************************************************************************
 .     *** (5) Transport and Other Services
 .     ********************************************************************************
-.     gen     transport=1 if (KODE>=298 & KODE<=301)  | (KODE==244 | KODE==246 | KODE==248 | KO
-> DE==250 | KODE==251)   
+.     gen     transport=1 if (KODE>=298 & KODE<=301)  | (KODE==244 | KODE==246 | KODE==248 | KODE==250 | KODE==251)   
 (11,342,620 missing values generated)
 
 . 
@@ -211,10 +210,9 @@ end of do-file
 .     *** (8) Other Goods and services
 .     ********************************************************************************
 .     *Miscelaneous Goods and Services, Parties and Ceremonies, Insurance
-.     //gen     othergood=1 if (KODE>=269 & KODE<=275 | KODE>=302 & KODE<=305 | KODE>=342 & KOD
-> E<=347 | KODE>=338 & KODE<=339)  // include both "asuransi kesehatan" dan "asuransi lainnya"
-.     gen     othergood=1 if (KODE>=269 & KODE<=275 | KODE>=302 & KODE<=305 | KODE>=342 & KODE<
-> =347)  // without insurance 
+.     //gen     othergood=1 if (KODE>=269 & KODE<=275 | KODE>=302 & KODE<=305 | KODE>=342 & KODE<=347 | KODE>=338 & KODE<=339)  /
+> / include both "asuransi kesehatan" dan "asuransi lainnya"
+.     gen     othergood=1 if (KODE>=269 & KODE<=275 | KODE>=302 & KODE<=305 | KODE>=342 & KODE<=347)  // without insurance 
 (10,248,137 missing values generated)
 
 .     replace othergood=0 if KODE==304 | KODE==345
@@ -233,8 +231,7 @@ end of do-file
 .     *** List all non-food commodities
 .     preserve
 
-.     order   rent utilities health education communication transport clothing durable othergoo
-> d 
+.     order   rent utilities health education communication transport clothing durable othergood 
 
 .     egen    nonfood = rowtotal(rent-othergood)
 
@@ -257,16 +254,13 @@ file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/2_commodity_basket.xls
 .     restore
 
 .     
-.     drop    rent utilities health education communication transport clothing durable othergoo
-> d 
+.     drop    rent utilities health education communication transport clothing durable othergood 
 
 . 
 . **# NON-FOOD BASKET (85 ITEM)
 .     
-.     gen     indonesia_list=1 if KODE==308 | KODE==309 | KODE==310 | KODE==311 | KODE==312 | K
-> ODE==313 | KODE==314 | ///
->             KODE==315 | KODE==318 | KODE==321 | KODE==319 | KODE==253 | KODE==234 | KODE==262
->  | KODE==236 | KODE==272 | ///
+.     gen     indonesia_list=1 if KODE==308 | KODE==309 | KODE==310 | KODE==311 | KODE==312 | KODE==313 | KODE==314 | ///
+>             KODE==315 | KODE==318 | KODE==321 | KODE==319 | KODE==253 | KODE==234 | KODE==262 | KODE==236 | KODE==272 | ///
 >             KODE==320 | KODE==273 | KODE==298  
 (8,626,042 missing values generated)
 
@@ -280,8 +274,7 @@ file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/2_commodity_basket.xls
 .     drop    indonesia_list_exp1 indonesia_list
 
 . 
-.     keep    URUT rent_exp utilities_exp communication_exp health_exp education_exp transport_
-> exp ///
+.     keep    URUT rent_exp utilities_exp communication_exp health_exp education_exp transport_exp ///
 >             clothing_exp durable_exp othergood_exp indonesia_list_exp WEIND WERT
 
 . 
@@ -293,8 +286,7 @@ Duplicates in terms of URUT
 
 . 
 .     save   "$data/nonfoodexp.dta", replace 
-file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/n
-> onfoodexp.dta saved
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/nonfoodexp.dta saved
 
 . 
 . 

@@ -1,8 +1,8 @@
------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/logs/2b_non_food_expenditure.log
   log type:  text
- opened on:  11 Feb 2026, 09:29:31
+ opened on:  24 Feb 2026, 09:19:49
 
 . 
 . **# DATA PREPARATION 
@@ -150,8 +150,7 @@ file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/2_meanexp_rent_utility
 
 . 
 .     save    "$data/prov_meanexp_rent_utility.dta", replace
-file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/p
-> rov_meanexp_rent_utility.dta saved
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/prov_meanexp_rent_utility.dta saved
 
 . 
 .     export  excel using "$output/2_meanexp_rent_utility.xlsx", ///
@@ -196,8 +195,7 @@ file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/2_meanexp_rent_utility
 .     display "y = " A " * e^(" B " * x)"
 y = 13224.52 * e^(.16444405 * x)
 
-.     display exp(_b[_cons] + _b[h_score]*$hscore) //to show what is the rent at x = 13, need t
-> o divide value by 1000 in graph 
+.     display exp(_b[_cons] + _b[h_score]*$hscore) //to show what is the rent at x = 13, need to divide value by 1000 in graph 
 112150.91
 
 .     *in 2018 average rent corresponding to x = 13 was 143, in 2024 it is 157.1
@@ -222,10 +220,7 @@ y = 13224.52 * e^(.16444405 * x)
 >             yline(167, lcolor(red) lpattern(shortdash))
 
 .     graph   export "$output/2_housing_exp_score.png", replace width(1500)
-(note: file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/2_housing_exp_score.png not fo
-> und)
-(file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/2_housing_exp_score.png written in P
-> NG format)
+(file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/2_housing_exp_score.png written in PNG format)
 
 .     restore
 
@@ -315,8 +310,7 @@ file C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/output/2_meanexp_health_edu_o
 
 . 
 .     save    "$data/prov_meanexp_hltheduoth.dta", replace
-file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/p
-> rov_meanexp_hltheduoth.dta saved
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/prov_meanexp_hltheduoth.dta saved
 
 . 
 .     export  excel using "$output/2_meanexp_health_edu_other.xlsx", ///
@@ -331,13 +325,20 @@ end of do-file
 
 . 
 .         * Food
-.         if      `2c_food_basket' == 1   {
-.                 do      "$dofile/2c_food_basket.do"
+.         if      `2c
+`2c invalid name
+r(198);
+
+end of do-file
+
+r(198);
+
+. do "c:\users\berth\appdata\local\temp\st_stata_temp.tmp"
 
 . * ==============================================================================
 . *
-. * Project         : Estimating Living Wage (KHL) 2025 
-. * Description     : Identify Food Basket for KHL Estimation
+. * Project         : Estimating Living Wage (KHL) 2024 
+. * Description     : Setting File Paths for KHL Estimation 
 . * Stata version   : 16 
 . * Date created    : October 30, 2025 - by Bertha
 . * Last modified   : October 30, 2025 - by Bertha

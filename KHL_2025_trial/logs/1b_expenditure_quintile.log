@@ -1,8 +1,8 @@
------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  C:\Users\berth\GitHub\KHL_2025\KHL_2025_trial/logs/1b_expenditure_quintile.log
   log type:  text
- opened on:  11 Feb 2026, 09:24:44
+ opened on:  24 Feb 2026, 09:15:10
 
 . 
 . **# FOOD EXPENDITURE 
@@ -35,18 +35,14 @@
 
 .     label variable KODE     "Commodity Item Number"
 
-.     label variable B41K5    "Number of Consumption per Week of a Household Derived from Purch
-> ases"
+.     label variable B41K5    "Number of Consumption per Week of a Household Derived from Purchases"
 
-.     label variable B41K6    "Value of Expenditures for a Week of a Household Derived from Pur
-> chases"
+.     label variable B41K6    "Value of Expenditures for a Week of a Household Derived from Purchases"
 
-.     label variable B41K7    "Number of Consumption per Week of a Household Originating from O
-> wn Production, Gifting, etc."
+.     label variable B41K7    "Number of Consumption per Week of a Household Originating from Own Production, Gifting, etc."
 note: label truncated to 80 characters
 
-.     label variable B41K8    "Value of Expenditures for a Week of a Household Derived from Own
->  Production, Giving, etc."
+.     label variable B41K8    "Value of Expenditures for a Week of a Household Derived from Own Production, Giving, etc."
 note: label truncated to 80 characters
 
 .     label variable B41K9    "Number of Household Consumption a Week"
@@ -110,8 +106,8 @@ Duplicates in terms of URUT
 
 .     gen     food_exp_pc = food_exp_monthly / R301         // Per capita
 
-.     mean    food_exp_pc [aweight=WEIND]                   // National weighted average - figu
-> res matching with 2024 report page 15 
+.     mean    food_exp_pc [aweight=WEIND]                   // National weighted average - figures matching with 2024 report page
+>  15 
 
 Mean estimation                   Number of obs   =    343,460
 
@@ -125,8 +121,7 @@ Mean estimation                   Number of obs   =    343,460
 .     keep    URUT food_exp_monthly food_exp_pc R301
 
 .     save    "$data/food_exp.dta",replace
-file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/f
-> ood_exp.dta saved
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/food_exp.dta saved
 
 . 
 . 
@@ -351,13 +346,13 @@ Duplicates in terms of URUT
 
 . 
 .     // Total non food expenditures
-.     egen  nonfood_exp    = rowtotal(hhfacility_exp hhgoods_exp health_exp education_exp trans
-> port_exp clothing_exp durable_exp taxes_exp parties_exp)
+.     egen  nonfood_exp    = rowtotal(hhfacility_exp hhgoods_exp health_exp education_exp transport_exp clothing_exp durable_exp 
+> taxes_exp parties_exp)
 
 .     gen   nonfood_exp_pc = nonfood_exp/R301
 
-.     mean  nonfood_exp_pc [aweight=WEIND]               // National weighted average - figures
->  matching with 2024 report page 15 
+.     mean  nonfood_exp_pc [aweight=WEIND]               // National weighted average - figures matching with 2024 report page 15
+>  
 
 Mean estimation                     Number of obs   =    343,460
 
@@ -380,13 +375,13 @@ nonfood_exp_pc |   793571.5   2136.959      789383.1    797759.9
     matched                           343,460  (_merge==3)
     -----------------------------------------
 
-.     egen    total_exp = rowtotal(food_exp_monthly hhfacility_exp hhgoods_exp health_exp educa
-> tion_exp transport_exp clothing_exp durable_exp taxes_exp parties_exp)
+.     egen    total_exp = rowtotal(food_exp_monthly hhfacility_exp hhgoods_exp health_exp education_exp transport_exp clothing_ex
+> p durable_exp taxes_exp parties_exp)
 
 .     gen     total_exp_pc = total_exp/R301
 
-.     mean    total_exp_pc [aweight = WEIND]               // National weighted average - figur
-> es matching with 2024 report page 15 
+.     mean    total_exp_pc [aweight = WEIND]               // National weighted average - figures matching with 2024 report page 
+> 15 
 
 Mean estimation                   Number of obs   =    343,460
 
@@ -413,20 +408,16 @@ total_exp_pc |    1569088   2672.277       1563850     1574325
 
 . 
 .     /*
->     See the ILO manual page 22: https://www.ilo.org/sites/default/files/2025-04/254_499_EN07.
-> pdf
+>     See the ILO manual page 22: https://www.ilo.org/sites/default/files/2025-04/254_499_EN07.pdf
 > 
->     - To account for family size and reflect living standards, we could simply divide the tot
-> al household expenditure by the number of household members. 
->     - However, because there are economies of scale when several individuals live together an
-> d because children have lower material needs than adults, 
+>     - To account for family size and reflect living standards, we could simply divide the total household expenditure by the nu
+> mber of household members. 
+>     - However, because there are economies of scale when several individuals live together and because children have lower mate
+> rial needs than adults, 
 >     estimating per capita expenditure requires the use of equivalence scales (ILO 2015). 
->     - Therefore, in this baseline methodology, we suggest using the OECD adult equivalence sc
-> ale (the Oxford scale), 
->     which typically assigns a value of 1 to the household head, 0.7 to each additional adult 
-> member and 0.5 to each child. 
->     - Once this is done, we rank the households from the poorest to the richest and create qu
-> intiles on
+>     - Therefore, in this baseline methodology, we suggest using the OECD adult equivalence scale (the Oxford scale), 
+>     which typically assigns a value of 1 to the household head, 0.7 to each additional adult member and 0.5 to each child. 
+>     - Once this is done, we rank the households from the poorest to the richest and create quintiles on
 >     the basis of their total monthly expenditure per adult equivalent.
 >     */
 . 
@@ -443,8 +434,8 @@ total_exp_pc |    1569088   2672.277       1563850     1574325
 
 . 
 . 
-.     keep    URUT R101 R301 total_exp total_exp_pc aeq_hh adult_hh total_exp_aeq quintile quin
-> tile_pc decile decile_pc WERT WEIND
+.     keep    URUT R101 R301 total_exp total_exp_pc aeq_hh adult_hh total_exp_aeq quintile quintile_pc decile decile_pc WERT WEIN
+> D
 
 .     do      "$dofile/sub/0_labeling_province.do"
 
@@ -499,8 +490,7 @@ end of do-file
 
 . 
 .     save    "$data/quintiles.dta", replace
-file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/q
-> uintiles.dta saved
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/quintiles.dta saved
 
 . 
 . 
@@ -508,8 +498,7 @@ file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\da
 . 
 .     * Calculate quintile
 .     levelsof R101, local(provinces)
-11 12 13 14 15 16 17 18 19 21 31 32 33 34 35 36 51 52 53 61 62 63 64 65 71 72 73 74 75 76 81 82
->  91 92 94 95 96 97
+11 12 13 14 15 16 17 18 19 21 31 32 33 34 35 36 51 52 53 61 62 63 64 65 71 72 73 74 75 76 81 82 91 92 94 95 96 97
 
 . 
 .     gen   quintile_pc_province = .
@@ -561,8 +550,8 @@ file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\da
 (4,099 real changes made)
 
 . 
-.     keep  URUT R101 total_exp total_exp_pc aeq_hh adult_hh total_exp_aeq quintile quintile_pc
->  quintile_pc_province decile WERT WEIND
+.     keep  URUT R101 total_exp total_exp_pc aeq_hh adult_hh total_exp_aeq quintile quintile_pc quintile_pc_province decile WERT 
+> WEIND
 
 . 
 .     table R101 [aweight=WEIND], contents(mean total_exp_pc)
@@ -612,8 +601,7 @@ KEP. BANGKA BELITUNG |        1765551
 
 . 
 .     save  "$data/quintiles_province.dta", replace
-file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/q
-> uintiles_province.dta saved
+file C:\Users\berth\Google Drive\DEN\Direktorat Eksekutif 2\Database\KHL_data\data_2025/clean/quintiles_province.dta saved
 
 . 
 . 
