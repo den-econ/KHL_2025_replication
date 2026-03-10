@@ -27,7 +27,7 @@
 **# REFERENCE QUINITLE
 
     * Generate Daily Calorie Intake
-    gen     food_exp_monthly    = food_exp_weekly * (30/4)      // Convert to monthly
+    gen     food_exp_monthly    = food_exp_weekly * (30/7)      // Convert to monthly
     gen     food_exp_pc         = food_exp_monthly/R301         // Per capita
     gen     calorie_pc          = calories/R301
     gen     protein_pc          = protein/R301
